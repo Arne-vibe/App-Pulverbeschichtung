@@ -88,8 +88,19 @@ BESCHREIBUNGEN_AUS_PLANUNG = {
 
 Tippfehler_Bereinigen = {
     "Behaetercode": "Behaeltercode",
+    "Behätercode": "Behältercode",
     "Ausatzrahmen": "Aufsatzrahmen",
 }
+
+
+def norm(text):
+    text = str(text or "").lower()
+    return (text.replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss"))
+
+
+def ist_code_spalte(text):
+    n = norm(text)
+    return n == "behaeltercode" or n == "behaetercode"
 
 
 def bereinigen(text):
@@ -116,14 +127,13 @@ def aus_xlsx(pfad):
     blatt = wb["Daten"]
     kopf = None
     for zeile in blatt.iter_rows(values_only=True):
-        werte = [bereinigen(z) for z in zeile]
-        if "Behaeltercode" in werte and any("eschreibung" in w for w in werte):
-            kopf = werte
+        if any(ist_code_spalte(z) for z in zeile) and any("eschreibung" in norm(z) for z in zeile):
+            kopf = list(zeile)
             break
     if kopf is None:
-        sys.exit("Kopfzeile mit 'Behaeltercode' und '...beschreibung' nicht gefunden.")
-    sp_code = kopf.index("Behaeltercode")
-    sp_beschr = next(i for i, w in enumerate(kopf) if "eschreibung" in w)
+        sys.exit("Kopfzeile mit Behaeltercode-Spalte und Beschreibungs-Spalte nicht gefunden.")
+    sp_code = next(i for i, z in enumerate(kopf) if ist_code_spalte(z))
+    sp_beschr = next(i for i, z in enumerate(kopf) if "eschreibung" in norm(z))
     ergebnis = {}
     for zeile in blatt.iter_rows(values_only=True):
         code = bereinigen(zeile[sp_code] if sp_code < len(zeile) else None)
