@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bestandsfuehrung – Pulverbeschichtung (Phase 1)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="kopf">
+    <div>
+      <h1>Bestandsfuehrung Kundenteile</h1>
+      <p class="untertitel">Buch Lackiertechnik GmbH – Abteilung Pulverbeschichtung · Phase 1, Sitzung 1: Bestandsuebersicht (Maske 3.1)</p>
+    </div>
+    <div class="kopf-aktionen">
+      <button id="wareneingang" class="primaer" disabled title="Wird in Sitzung 2 gebaut (Maske 3.2)">+ Wareneingang erfassen</button>
+      <button id="zuruecksetzen" title="Beispiel-Posten neu laden">Beispieldaten zuruecksetzen</button>
+    </div>
+  </header>
+
+  <section class="filterleiste" aria-label="Filter">
+    <label>Kunde
+      <select id="filterKunde"></select>
+    </label>
+    <label>Status
+      <select id="filterStatus"></select>
+    </label>
+    <label>Teilenummer
+      <input id="filterTeilenummer" type="text" placeholder="z. B. JD-4326">
+    </label>
+    <label>Behaeltertyp
+      <select id="filterBehaeltertyp"></select>
+    </label>
+    <label>Bestellnummer
+      <input id="filterBestellnummer" type="text" placeholder="z. B. B-2026-114">
+    </label>
+    <label>Liefernummer
+      <input id="filterLiefernummer" type="text" placeholder="z. B. L-88231">
+    </label>
+    <label class="suche">Suche
+      <input id="suche" type="search" placeholder="Teilenummer, Kunde, Beschreibung, Nummern …">
+    </label>
+  </section>
+
+  <section class="legende">
+    <span class="ampel gruen"></span> Fertigteil
+    <span class="ampel gelb"></span> in Produktion
+    <span class="ampel rot"></span> gesperrt (blockiert)
+    <span class="ampel leer"></span> Rohteil (noch kein Beginn)
+    <span class="zaehler" id="postenZaehler"></span>
+  </section>
+
+  <main>
+    <table id="bestandstabelle">
+      <thead><tr></tr></thead>
+      <tbody></tbody>
+    </table>
+  </main>
+
+  <footer class="fuss">
+    Standardsortierung: Kunde, dann Wareneingangsdatum aufsteigend (FIFO-Sicht). Klick auf eine Spaltenueberschrift sortiert danach.
+  </footer>
+
+  <script src="js/modell.js"></script>
+  <script src="js/behaelterstamm.js"></script>
+  <script src="js/stammdaten.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
