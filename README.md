@@ -45,6 +45,7 @@ aus der Planung.
 ```
 AENDERUNGEN.md        Aenderungsprotokoll der App (Umsetzungsaenderungen, Fixes, Commits)
 docs/                 Gesamtplanung_App_Pulverbeschichtung.docx (versionierte Planungsgrundlage, Stand 19.11.2026)
+docs/prototypen/      Vibe-Work-Prototypen (Phase 1 + Phase 2) als Design-Referenz; Optik der App orientiert sich daran
 Behaelter.xlsx        Packmittel-Typen-Liste (Quelle fuer den Behaelterstamm-Import)
 index.html            Einstieg, laedt die App
 style.css             Darstellung

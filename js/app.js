@@ -322,6 +322,8 @@ function zeigeBestaetigung(text) {
 function zeigeAnsicht(name) {
   document.getElementById("ansicht-bestand").hidden = name !== "bestand";
   document.getElementById("ansicht-wareneingang").hidden = name !== "wareneingang";
+  document.getElementById("navBestand").className = "nav" + (name === "bestand" ? " aktiv" : "");
+  document.getElementById("wareneingang").className = "nav" + (name === "wareneingang" ? " aktiv" : "");
   if (name === "wareneingang") rendernEingang();
   if (name === "bestand") rendern();
 }
@@ -622,6 +624,10 @@ function eingangSpeichern() {
 }
 
 function eingangVerbinden() {
+  document.getElementById("navBestand").addEventListener("click", function () {
+    document.getElementById("bestaetigung").hidden = true;
+    zeigeAnsicht("bestand");
+  });
   document.getElementById("wareneingang").addEventListener("click", function () {
     document.getElementById("bestaetigung").hidden = true;
     zeigeAnsicht("wareneingang");
