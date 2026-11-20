@@ -1,3 +1,11 @@
+:root {
+  --marke: #005ca9;
+  --marke-dunkel: #00417a;
+  --marke-hell: #e3eef7;
+  --marke-hover: #eef5fb;
+  --marke-kopf-untergrund: #d8e6f3;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -15,7 +23,7 @@ body {
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  background: #14532d;
+  background: var(--marke-dunkel);
   color: #ffffff;
   padding: 14px 20px;
 }
@@ -46,8 +54,8 @@ button {
 }
 
 button.primaer {
-  background: #16a34a;
-  border-color: #16a34a;
+  background: var(--marke);
+  border-color: var(--marke);
   color: #ffffff;
 }
 
@@ -102,7 +110,7 @@ button:disabled {
 .legende .zaehler {
   margin-left: auto;
   font-weight: 600;
-  color: #14532d;
+  color: var(--marke-dunkel);
 }
 
 .ampel {
@@ -139,7 +147,7 @@ th, td {
 }
 
 thead th {
-  background: #eef1f4;
+  background: var(--marke-kopf-untergrund);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -154,11 +162,11 @@ th.sortierbar {
 }
 
 th.sortierbar:hover {
-  background: #e2e6ea;
+  background: var(--marke-hell);
 }
 
 tbody tr:hover {
-  background: #f0fdf4;
+  background: var(--marke-hover);
 }
 
 tbody tr.gesperrt {
