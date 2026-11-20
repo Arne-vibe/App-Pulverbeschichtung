@@ -1,12 +1,20 @@
 const SPEICHER_KEY = "pulverbeschichtung.phase1.v1";
+const BENUTZER = "Buero";
 
 const zustand = {
   posten: [],
   bewegungen: [],
   filter: { kunde: "", status: "", teilenummer: "", behaeltertyp: "", bestellnummer: "", liefernummer: "" },
   suche: "",
-  sortierung: { schluessel: "kunde", richtung: 1 }
+  sortierung: { schluessel: "kunde", richtung: 1 },
+  eingang: { kunde: "", datum: "", positionen: [] }
 };
+
+function heuteIso() {
+  const d = new Date();
+  const pad = function (n) { return String(n).padStart(2, "0"); };
+  return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+}
 
 function ladeDaten() {
   try {
@@ -15,6 +23,7 @@ function ladeDaten() {
       const daten = JSON.parse(roh);
       zustand.posten = daten.posten || [];
       zustand.bewegungen = daten.bewegungen || [];
+      zustand.eingang = { kunde: "", datum: heuteIso(), positionen: [neuePosition()] };
       return;
     }
   } catch (e) {
@@ -27,6 +36,7 @@ function BeispieldatenUebernehmen() {
   const daten = beispielDaten();
   zustand.posten = daten.posten;
   zustand.bewegungen = daten.bewegungen;
+  zustand.eingang = { kunde: "", datum: heuteIso(), positionen: [neuePosition()] };
   speichereDaten();
 }
 
@@ -36,10 +46,6 @@ function speichereDaten() {
 
 function kundeZu(posten) {
   return KUNDENSTAMM.find(function (k) { return k.kundennummer === posten.kunde; });
-}
-
-function behaelterZu(code) {
-  return BEHAELTERSTAMM.find(function (b) { return b.behaeltercode === code; });
 }
 
 function ampelKlasse(posten) {
@@ -111,8 +117,8 @@ function sortWert(p, schluessel) {
     case "kunde": return (k ? k.kundenname : p.kunde).toLowerCase();
     case "stueckzahl": return p.stueckzahl;
     case "teilenummer": return p.teilenummer.toLowerCase();
-    case "beschreibung": return (p.beschreibung || "").toLowerCase();
     case "farbcode": return p.farbcode.toLowerCase();
+    case "beschreibung": return (p.beschreibung || "").toLowerCase();
     case "behaelter": return p.behaeltertyp.toLowerCase();
     case "bestellnummer": return (p.bestellnummer || "").toLowerCase();
     case "liefernummer": return (p.liefernummer || "").toLowerCase();
@@ -160,8 +166,8 @@ const SPALTEN = [
   { schluessel: "liegezeit", titel: "Liegezeit", sortierbar: true }
 ];
 
-function fuelleKundenSelect(select) {
-  select.innerHTML = '<option value="">alle Kunden</option>';
+function fuelleKundenSelect(select, mitLeer) {
+  select.innerHTML = mitLeer ? '<option value="">bitte waehlen</option>' : '<option value="">alle Kunden</option>';
   KUNDENSTAMM.filter(function (k) { return !k.deaktiviert; }).forEach(function (k) {
     const opt = document.createElement("option");
     opt.value = k.kundennummer;
@@ -197,8 +203,8 @@ function fuelleStatusSelect(select) {
   select.appendChild(opt);
 }
 
-function rendernKopfzeile(tbodyKopf) {
-  tbodyKopf.innerHTML = "";
+function rendernKopfzeile(thead) {
+  thead.innerHTML = "";
   const tr = document.createElement("tr");
   SPALTEN.forEach(function (sp) {
     const th = document.createElement("th");
@@ -222,7 +228,7 @@ function rendernKopfzeile(tbodyKopf) {
     }
     tr.appendChild(th);
   });
-  tbodyKopf.appendChild(tr);
+  thead.appendChild(tr);
 }
 
 function rendernTabelle() {
@@ -274,15 +280,19 @@ function rendernTabelle() {
     const badge = document.createElement("span");
     badge.className = "badge " + statusBadgeKlasse(p.status);
     badge.textContent = p.status;
+    tdStatus.appendChild(badge);
+    if (p.retoureGrund) {
+      const ret = document.createElement("span");
+      ret.className = "badge badge-retoure";
+      ret.textContent = "Retoure: " + p.retoureGrund;
+      tdStatus.appendChild(ret);
+    }
     if (p.gesperrt) {
       const sperr = document.createElement("span");
       sperr.className = "badge badge-gesperrt";
       sperr.textContent = "gesperrt";
       sperr.title = p.sperrgrund || "";
-      tdStatus.appendChild(badge);
       tdStatus.appendChild(sperr);
-    } else {
-      tdStatus.appendChild(badge);
     }
     tr.appendChild(tdStatus);
 
@@ -301,6 +311,19 @@ function rendernTabelle() {
 
 function rendern() {
   rendernTabelle();
+}
+
+function zeigeBestaetigung(text) {
+  const el = document.getElementById("bestaetigung");
+  el.textContent = text;
+  el.hidden = false;
+}
+
+function zeigeAnsicht(name) {
+  document.getElementById("ansicht-bestand").hidden = name !== "bestand";
+  document.getElementById("ansicht-wareneingang").hidden = name !== "wareneingang";
+  if (name === "wareneingang") rendernEingang();
+  if (name === "bestand") rendern();
 }
 
 function filterVerbinden() {
@@ -335,12 +358,287 @@ function filterVerbinden() {
   });
 }
 
+function neuePosition() {
+  return {
+    buchungsart: "Neuanlieferung",
+    teilenummer: "",
+    beschreibung: "",
+    farbcode: "",
+    stueckzahl: "",
+    behaeltertyp: "",
+    anzahlBehaelter: "",
+    teileProBehaelter: "",
+    bestellnummer: "",
+    liefernummer: "",
+    retoureGrund: "",
+    r1Bestaetigt: false
+  };
+}
+
+function r1Abweichung(pos) {
+  if (pos.stueckzahl === "" || pos.anzahlBehaelter === "" || pos.teileProBehaelter === "") return null;
+  const s = Number(pos.stueckzahl);
+  const a = Number(pos.anzahlBehaelter);
+  const t = Number(pos.teileProBehaelter);
+  if (isNaN(s) || isNaN(a) || isNaN(t)) return null;
+  if (s === a * t) return null;
+  return { stueckzahl: s, gerechnet: a * t, anzahl: a, teile: t };
+}
+
+function naechstePostenNummer(jahr) {
+  const prefix = "P-" + jahr + "-";
+  let max = 0;
+  zustand.posten.forEach(function (p) {
+    if (p.postennummer.indexOf(prefix) === 0) {
+      const n = parseInt(p.postennummer.slice(prefix.length), 10);
+      if (!isNaN(n) && n > max) max = n;
+    }
+  });
+  return prefix + String(max + 1).padStart(4, "0");
+}
+
+function naechsteBewegungsId() {
+  let max = 0;
+  zustand.bewegungen.forEach(function (b) {
+    const n = parseInt(String(b.id).replace("B-", ""), 10);
+    if (!isNaN(n) && n > max) max = n;
+  });
+  return "B-" + String(max + 1).padStart(4, "0");
+}
+
+function fuelleBeschreibungsListe() {
+  const dl = document.getElementById("beschreibungsListe");
+  dl.innerHTML = "";
+  MODELL.beschreibungsVorauswahl.forEach(function (b) {
+    const opt = document.createElement("option");
+    opt.value = b;
+    dl.appendChild(opt);
+  });
+}
+
+function fuelleTeilenummerListe() {
+  const dl = document.getElementById("teilenummerListe");
+  dl.innerHTML = "";
+  const kunde = zustand.eingang.kunde;
+  const siehe = new Set();
+  zustand.posten.forEach(function (p) {
+    if (p.kunde === kunde && !siehe.has(p.teilenummer)) {
+      siehe.add(p.teilenummer);
+      const opt = document.createElement("option");
+      opt.value = p.teilenummer;
+      dl.appendChild(opt);
+    }
+  });
+}
+
+function behaelterOptionenHtml(ausgewaehlt) {
+  return BEHAELTERSTAMM.filter(function (b) { return !b.deaktiviert; })
+    .slice()
+    .sort(function (a, b) { return a.eingangsreihenfolge - b.eingangsreihenfolge; })
+    .map(function (b) {
+      const sel = b.behaeltercode === ausgewaehlt ? " selected" : "";
+      return '<option value="' + b.behaeltercode + '"' + sel + ">" + b.behaeltercode + " – " + b.behaelterbeschreibung + "</option>";
+    })
+    .join("");
+}
+
+function eingangZeileHtml(pos, i) {
+  const r1 = r1Abweichung(pos);
+  const pruefung = r1
+    ? '<span class="warn">⚠ ' + r1.stueckzahl + " ≠ " + r1.anzahl + " × " + r1.teile + " = " + r1.gerechnet + '</span><br><label class="trotzdem"><input type="checkbox" data-i="' + i + '" data-feld="r1Bestaetigt"' + (pos.r1Bestaetigt ? " checked" : "") + '> Trotzdem speichern</label>'
+    : '<span class="ok">ok</span>';
+  const retoure = pos.buchungsart === "Retoure"
+    ? '<tr class="retoure-zeile" data-retoure="' + i + '"><td colspan="12">Retoure-Grund (Pflicht, R8): <select data-i="' + i + '" data-feld="retoureGrund"><option value="">bitte waehlen</option><option value="Nacharbeit"' + (pos.retoureGrund === "Nacharbeit" ? " selected" : "") + '>Nacharbeit</option><option value="Reklamation"' + (pos.retoureGrund === "Reklamation" ? " selected" : "") + '>Reklamation</option></select></td></tr>'
+    : "";
+  return '<tr data-i="' + i + '">'
+    + '<td><select data-i="' + i + '" data-feld="buchungsart"><option value="Neuanlieferung"' + (pos.buchungsart === "Neuanlieferung" ? " selected" : "") + '>Neuanlieferung</option><option value="Retoure"' + (pos.buchungsart === "Retoure" ? " selected" : "") + '>Retoure</option></select></td>'
+    + '<td><input type="text" data-i="' + i + '" data-feld="teilenummer" list="teilenummerListe" value="' + pos.teilenummer + '"></td>'
+    + '<td><input type="text" data-i="' + i + '" data-feld="beschreibung" list="beschreibungsListe" value="' + pos.beschreibung + '"></td>'
+    + '<td><input type="text" data-i="' + i + '" data-feld="farbcode" value="' + pos.farbcode + '"></td>'
+    + '<td><input type="number" min="1" data-i="' + i + '" data-feld="stueckzahl" value="' + pos.stueckzahl + '"></td>'
+    + '<td><select data-i="' + i + '" data-feld="behaeltertyp"><option value="">-- waehlen --</option>' + behaelterOptionenHtml(pos.behaeltertyp) + "</select></td>"
+    + '<td><input type="number" min="1" data-i="' + i + '" data-feld="anzahlBehaelter" value="' + pos.anzahlBehaelter + '"></td>'
+    + '<td><input type="number" min="0" data-i="' + i + '" data-feld="teileProBehaelter" value="' + pos.teileProBehaelter + '"></td>'
+    + '<td><input type="text" data-i="' + i + '" data-feld="bestellnummer" value="' + pos.bestellnummer + '"></td>'
+    + '<td><input type="text" data-i="' + i + '" data-feld="liefernummer" value="' + pos.liefernummer + '"></td>'
+    + '<td class="pruefung">' + pruefung + "</td>"
+    + '<td><button type="button" class="loeschen" data-i="' + i + '" title="Position loeschen">✕</button></td>'
+    + "</tr>" + retoure;
+}
+
+function rendernEingang() {
+  const kundeSelect = document.getElementById("eingangKunde");
+  constalteWerte = kundeSelect.value;
+  fuelleKundenSelect(kundeSelect, true);
+  kundeSelect.value = zustand.eingang.kunde || constalteWerte;
+  document.getElementById("eingangDatum").value = zustand.eingang.datum || heuteIso();
+  fuelleBeschreibungsListe();
+  fuelleTeilenummerListe();
+  const tbody = document.getElementById("positionsKörper");
+  tbody.innerHTML = "";
+  zustand.eingang.positionen.forEach(function (pos, i) {
+    tbody.innerHTML += eingangZeileHtml(pos, i);
+  });
+  tbody.querySelectorAll("input, select").forEach(function (el) {
+    const i = parseInt(el.getAttribute("data-i"), 10);
+    const feld = el.getAttribute("data-feld");
+    if (feld === "r1Bestaetigt") {
+      el.addEventListener("change", function () {
+        zustand.eingang.positionen[i][feld] = el.checked;
+      });
+      return;
+    }
+    el.addEventListener("input", function () {
+      zustand.eingang.positionen[i][feld] = el.value;
+      aktualisierePruefung(i);
+    });
+    el.addEventListener("change", function () {
+      zustand.eingang.positionen[i][feld] = el.value;
+      if (feld === "buchungsart" || feld === "behaeltertyp") rendernEingang();
+      else aktualisierePruefung(i);
+    });
+  });
+  tbody.querySelectorAll(".loeschen").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const i = parseInt(btn.getAttribute("data-i"), 10);
+      zustand.eingang.positionen.splice(i, 1);
+      rendernEingang();
+    });
+  });
+}
+
+function aktualisierePruefung(i) {
+  const pos = zustand.eingang.positionen[i];
+  if (!pos) return;
+  const tbody = document.getElementById("positionsKörper");
+  const tr = tbody.querySelector('tr[data-i="' + i + '"]');
+  if (!tr) return;
+  const zelle = tr.querySelector(".pruefung");
+  if (!zelle) return;
+  const r1 = r1Abweichung(pos);
+  zelle.innerHTML = r1
+    ? '<span class="warn">⚠ ' + r1.stueckzahl + " ≠ " + r1.anzahl + " × " + r1.teile + " = " + r1.gerechnet + '</span><br><label class="trotzdem"><input type="checkbox" data-i="' + i + '" data-feld="r1Bestaetigt"' + (pos.r1Bestaetigt ? " checked" : "") + '> Trotzdem speichern</label>'
+    : '<span class="ok">ok</span>';
+  const cb = zelle.querySelector("input[data-feld='r1Bestaetigt']");
+  if (cb) {
+    cb.addEventListener("change", function () {
+      pos.r1Bestaetigt = cb.checked;
+    });
+  }
+}
+
+function eingangSpeichern() {
+  const kunde = zustand.eingang.kunde;
+  const datum = document.getElementById("eingangDatum").value || zustand.eingang.datum;
+  if (!kunde) {
+    alert("Bitte Kunde im Kopffeld auswaehlen.");
+    return;
+  }
+  if (!datum) {
+    alert("Bitte Wareneingangsdatum setzen.");
+    return;
+  }
+  zustand.eingang.datum = datum;
+  const pos = zustand.eingang.positionen;
+  if (pos.length === 0) {
+    alert("Mindestens eine Position anlegen (\"+ Weitere Position\").");
+    return;
+  }
+  for (let i = 0; i < pos.length; i++) {
+    const p = pos[i];
+    const fehlt = [];
+    if (!p.teilenummer.trim()) fehlt.push("Teilenummer");
+    if (p.farbcode.trim() === "") fehlt.push("Farbcode");
+    if (p.stueckzahl === "" || isNaN(Number(p.stueckzahl)) || Number(p.stueckzahl) <= 0) fehlt.push("Stueckzahl (> 0)");
+    if (!p.behaeltertyp) fehlt.push("Behaeltertyp");
+    if (p.anzahlBehaelter === "" || isNaN(Number(p.anzahlBehaelter)) || Number(p.anzahlBehaelter) <= 0) fehlt.push("Anzahl Behaelter (> 0)");
+    if (p.teileProBehaelter === "" || isNaN(Number(p.teileProBehaelter))) fehlt.push("Teile je Behaelter");
+    if (p.buchungsart === "Retoure" && !p.retoureGrund) fehlt.push("Retoure-Grund");
+    if (fehlt.length > 0) {
+      alert("Position " + (i + 1) + ": Pflichtfeld(er) fehlen bzw. ungueltig: " + fehlt.join(", "));
+      return;
+    }
+  }
+  for (let i = 0; i < pos.length; i++) {
+    const abw = r1Abweichung(pos[i]);
+    if (abw && !pos[i].r1Bestaetigt) {
+      alert("Position " + (i + 1) + ": Stueckzahl " + abw.stueckzahl + " weicht ab von Anzahl × Teile je Behaelter (" + abw.anzahl + " × " + abw.teile + " = " + abw.gerechnet + "). Bitte korrigieren oder Zeile mit \"Trotzdem speichern\" bestaetigen (R1).");
+      return;
+    }
+  }
+  const jahr = datum.slice(0, 4);
+  const neu = [];
+  pos.forEach(function (p) {
+    const nr = naechstePostenNummer(jahr);
+    const posten = {
+      postennummer: nr,
+      kunde: kunde,
+      teilenummer: p.teilenummer.trim(),
+      beschreibung: p.beschreibung.trim(),
+      stueckzahl: Number(p.stueckzahl),
+      farbcode: p.farbcode.trim(),
+      anzahlBehaelter: Number(p.anzahlBehaelter),
+      behaeltertyp: p.behaeltertyp,
+      teileProBehaelter: Number(p.teileProBehaelter),
+      wareneingangsdatum: datum,
+      bestellnummer: p.bestellnummer.trim(),
+      liefernummer: p.liefernummer.trim(),
+      warenausgangsdatum: null,
+      status: "Rohteil",
+      gesperrt: false,
+      sperrgrund: "",
+      produktionsdatum: null,
+      buchungsart: p.buchungsart,
+      retoureGrund: p.buchungsart === "Retoure" ? p.retoureGrund : ""
+    };
+    zustand.posten.push(posten);
+    neu.push(nr);
+    zustand.bewegungen.push({
+      id: naechsteBewegungsId(),
+      posten: nr,
+      bewegungsart: posten.buchungsart === "Retoure" ? "Retoure" : "Wareneingang",
+      datumUhrzeit: new Date().toISOString(),
+      vorherWert: null,
+      nachherWert: "Status Rohteil, " + posten.stueckzahl + " Stueck" + (posten.retoureGrund ? " (Retoure: " + posten.retoureGrund + ")" : ""),
+      benutzer: BENUTZER
+    });
+  });
+  speichereDaten();
+  zustand.eingang = { kunde: "", datum: heuteIso(), positionen: [neuePosition()] };
+  zeigeBestaetigung("Wareneingang gespeichert: " + neu.join(", ") + "  (" + neu.length + " Posten, Kunde " + kunde + ", " + formatDatum(datum) + ")");
+  zeigeAnsicht("bestand");
+}
+
+function eingangVerbinden() {
+  document.getElementById("wareneingang").addEventListener("click", function () {
+    document.getElementById("bestaetigung").hidden = true;
+    zeigeAnsicht("wareneingang");
+  });
+  document.getElementById("eingangKunde").addEventListener("change", function (e) {
+    zustand.eingang.kunde = e.target.value;
+    fuelleTeilenummerListe();
+  });
+  document.getElementById("eingangDatum").addEventListener("change", function (e) {
+    zustand.eingang.datum = e.target.value;
+  });
+  document.getElementById("weiterePosition").addEventListener("click", function () {
+    zustand.eingang.positionen.push(neuePosition());
+    rendernEingang();
+  });
+  document.getElementById("eingangSpeichern").addEventListener("click", eingangSpeichern);
+  document.getElementById("eingangAbbrechen").addEventListener("click", function () {
+    zustand.eingang = { kunde: "", datum: heuteIso(), positionen: [neuePosition()] };
+    zeigeAnsicht("bestand");
+  });
+}
+
 function init() {
   ladeDaten();
-  fuelleKundenSelect(document.getElementById("filterKunde"));
+  fuelleKundenSelect(document.getElementById("filterKunde"), false);
   fuelleStatusSelect(document.getElementById("filterStatus"));
   fuelleBehaelterSelect(document.getElementById("filterBehaeltertyp"));
   filterVerbinden();
+  eingangVerbinden();
   rendern();
 }
 

@@ -19,6 +19,7 @@ Beim ersten Start werden 20 Beispiel-Posten geladen und lokal im Browser gespeic
   sowie die Regeln R1–R8 als hinterlegte Referenzen.
 - **Behaelterstamm** (`js/behaelterstamm.js`): alle 34 Packmittel-Typen inkl. der sieben
   Sondergestelle als eigene Typen, mit Anzeige- und Eingangsreihenfolge laut Planung.
+- **Wareneingang (Maske 3.2)**: Kopf (Kunde, Wareneingangsdatum) + Positionstabelle mit Buchungsart (Neuanlieferung/Retoure mit Pflicht-Grund), Vorauswahllisten (Beschreibung, Teilenummer je Kunde), Behaeltertyp-Dropdown in Haeufigkeitsreihenfolge, Pruefung R1 je Zeile mit "Trotzdem speichern", Sammelspeichern aller Zeilen als eigene Posten (Status Rohteil) inkl. Historie und Bestaetigung der Posten-Nummern.
 - **Bestandsuebersicht (Maske 3.1)** (`index.html` + `js/app.js`):
   Filterleiste (Kunde, Status inkl. „Gesperrt“, Teilenummer, Behaeltertyp, Bestellnummer,
   Liefernummer), Suchfeld, Ampel (gruen = Fertigteil, gelb = Produktion, rot = gesperrt,
@@ -57,6 +58,6 @@ start.bat             Start per Doppelklick (Windows)
 
 ## Naechste Sitzungen (laut Bauplan)
 
-1. Sitzung 2: Wareneingang als Kopf-Positions-Maske (Maske 3.2) mit Pruefungen je Zeile (R1, R8).
+1. ~~Sitzung 2: Wareneingang (Maske 3.2)~~ erledigt.
 2. Sitzung 3: Posten-Detail mit Historie, Mengenkorrektur, Sperren/Entsperren (Masken 3.3/3.4).
 3. Sitzung 4: Rollen/Benutzer, Kundenstamm, Behaelterstamm-Pflege (Masken 3.5–3.7), Durchtestung.

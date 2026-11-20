@@ -10,56 +10,101 @@
   <header class="kopf">
     <div>
       <h1>Bestandsfuehrung Kundenteile</h1>
-      <p class="untertitel">Buch Lackiertechnik GmbH – Abteilung Pulverbeschichtung · Phase 1, Sitzung 1: Bestandsuebersicht (Maske 3.1)</p>
+      <p class="untertitel">Buch Lackiertechnik GmbH – Abteilung Pulverbeschichtung · Phase 1: Bestandsuebersicht (Maske 3.1) + Wareneingang (Maske 3.2)</p>
     </div>
     <div class="kopf-aktionen">
-      <button id="wareneingang" class="primaer" disabled title="Wird in Sitzung 2 gebaut (Maske 3.2)">+ Wareneingang erfassen</button>
+      <button id="wareneingang" class="primaer">+ Wareneingang erfassen</button>
       <button id="zuruecksetzen" title="Beispiel-Posten neu laden">Beispieldaten zuruecksetzen</button>
     </div>
   </header>
 
-  <section class="filterleiste" aria-label="Filter">
-    <label>Kunde
-      <select id="filterKunde"></select>
-    </label>
-    <label>Status
-      <select id="filterStatus"></select>
-    </label>
-    <label>Teilenummer
-      <input id="filterTeilenummer" type="text" placeholder="z. B. JD-4326">
-    </label>
-    <label>Behaeltertyp
-      <select id="filterBehaeltertyp"></select>
-    </label>
-    <label>Bestellnummer
-      <input id="filterBestellnummer" type="text" placeholder="z. B. B-2026-114">
-    </label>
-    <label>Liefernummer
-      <input id="filterLiefernummer" type="text" placeholder="z. B. L-88231">
-    </label>
-    <label class="suche">Suche
-      <input id="suche" type="search" placeholder="Teilenummer, Kunde, Beschreibung, Nummern …">
-    </label>
+  <div id="ansicht-bestand">
+    <div id="bestaetigung" class="bestaetigung" hidden></div>
+
+    <section class="filterleiste" aria-label="Filter">
+      <label>Kunde
+        <select id="filterKunde"></select>
+      </label>
+      <label>Status
+        <select id="filterStatus"></select>
+      </label>
+      <label>Teilenummer
+        <input id="filterTeilenummer" type="text" placeholder="z. B. JD-4326">
+      </label>
+      <label>Behaeltertyp
+        <select id="filterBehaeltertyp"></select>
+      </label>
+      <label>Bestellnummer
+        <input id="filterBestellnummer" type="text" placeholder="z. B. B-2026-114">
+      </label>
+      <label>Liefernummer
+        <input id="filterLiefernummer" type="text" placeholder="z. B. L-88231">
+      </label>
+      <label class="suche">Suche
+        <input id="suche" type="search" placeholder="Teilenummer, Kunde, Beschreibung, Nummern …">
+      </label>
+    </section>
+
+    <section class="legende">
+      <span class="ampel gruen"></span> Fertigteil
+      <span class="ampel gelb"></span> in Produktion
+      <span class="ampel rot"></span> gesperrt (blockiert)
+      <span class="ampel leer"></span> Rohteil (noch kein Beginn)
+      <span class="zaehler" id="postenZaehler"></span>
+    </section>
+
+    <main>
+      <table id="bestandstabelle">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </main>
+
+    <footer class="fuss">
+      Standardsortierung: Kunde, dann Wareneingangsdatum aufsteigend (FIFO-Sicht). Klick auf eine Spaltenueberschrift sortiert danach.
+    </footer>
+  </div>
+
+  <section id="ansicht-wareneingang" hidden>
+    <div class="eingang-kopf">
+      <h2>Wareneingang erfassen</h2>
+      <label>Kunde (Pflicht)
+        <select id="eingangKunde"></select>
+      </label>
+      <label>Wareneingangsdatum
+        <input id="eingangDatum" type="date">
+      </label>
+    </div>
+    <main>
+      <table id="positionen">
+        <thead>
+          <tr>
+            <th>Buchungsart</th>
+            <th>Teilenummer</th>
+            <th>Beschreibung</th>
+            <th>Farbcode</th>
+            <th>Stueckzahl</th>
+            <th>Behaeltertyp</th>
+            <th>Anzahl Behaelter</th>
+            <th>Teile je Behaelter</th>
+            <th>Bestellnummer (opt.)</th>
+            <th>Liefernummer (opt.)</th>
+            <th>Pruefung (R1)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="positionsKörper"></tbody>
+      </table>
+      <datalist id="beschreibungsListe"></datalist>
+      <datalist id="teilenummerListe"></datalist>
+      <div class="eingang-aktionen">
+        <button id="weiterePosition">+ Weitere Position</button>
+        <button id="eingangSpeichern" class="primaer">Speichern</button>
+        <button id="eingangAbbrechen">Abbrechen</button>
+      </div>
+      <p class="hinweis">Eine Zeile = ein eigener Bestandsposten (Status Rohteil), ein Behaeltertyp mit einheitlicher Fuellung. Gemischte Behaelter oder ungleiche Fuellungen ueber zusaetzliche Zeilen abbilden. Bei Retoure erscheint eine orange Zeile mit Pflichtangabe des Retoure-Grunds (R8).</p>
+    </main>
   </section>
-
-  <section class="legende">
-    <span class="ampel gruen"></span> Fertigteil
-    <span class="ampel gelb"></span> in Produktion
-    <span class="ampel rot"></span> gesperrt (blockiert)
-    <span class="ampel leer"></span> Rohteil (noch kein Beginn)
-    <span class="zaehler" id="postenZaehler"></span>
-  </section>
-
-  <main>
-    <table id="bestandstabelle">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
-  </main>
-
-  <footer class="fuss">
-    Standardsortierung: Kunde, dann Wareneingangsdatum aufsteigend (FIFO-Sicht). Klick auf eine Spaltenueberschrift sortiert danach.
-  </footer>
 
   <script src="js/modell.js"></script>
   <script src="js/behaelterstamm.js"></script>
