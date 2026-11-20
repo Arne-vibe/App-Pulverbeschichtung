@@ -42,6 +42,7 @@ aus der Planung.
 ## Aufbau
 
 ```
+AENDERUNGEN.md        Aenderungsprotokoll der App (Umsetzungsaenderungen, Fixes, Commits)
 index.html            Einstieg, laedt die App
 style.css             Darstellung
 js/modell.js          Datenmodell laut Planung (Entitaeten, Status, Regeln)

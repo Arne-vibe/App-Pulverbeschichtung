@@ -1,0 +1,21 @@
+# AENDERUNGEN.md – Änderungsprotokoll der App
+
+Dieses Protokoll dokumentiert **Umsetzungsänderungen der App** ( deviations vom Plan, Rückmeldungen aus dem Test, Fixes) mit Datum und Commit.
+
+**Grundsatz:** Änderungen an der *Planung selbst* (Masken, Regeln, Datenmodell-Vorgaben) gehören in die `Gesamtplanung_App_Pulverbeschichtung.docx` – diese Datei bleibt die alleinige Planungsquelle. Dieses Protokoll hier dokumentiert nur, was in der App tatsächlich gebaut bzw. geändert wurde und warum.
+
+Neueste Einträge oben. Format beibehalten: `Datum | Sitzung | Änderung | Grund/Anlass | Commit`.
+
+| Datum | Sitzung | Änderung | Grund/Anlass | Commit |
+|---|---|---|---|---|
+| 20.11.2026 | Test | Farbschema aller Ansichten auf Blau umgestellt (Markenfarbe); Farben zentral als CSS-Variablen in `:root` (`style.css`), aktuell `#005ca9` / `#00417a`. Ampel- und Statusfarben bleiben semantisch (grün/gelb/rot). | Rückmeldung Test: Hausfarbe blau (www.buch-lot.de; exakter Hex-Wert dort nicht automatisiert auslesbar, in `:root` zentral anpassbar) | 8f0794d |
+| 20.11.2026 | Test | Spalten **Farbcode und Beschreibung getauscht** (neu: … Teilenummer, Farbcode, Beschreibung, Behälter …) | Rückmeldung Test | 8f0794d |
+| 20.11.2026 | Test | Spalte **Behälter um „je“-Angabe ergänzt**: „5 × GKA je 20 (= 100)“ statt nur „5 × GKA“ | Rückmeldung Test; Teile-je-Behälter aus Phase 1 als „je“-Angabe (Phase-2-Planung) | 3a4b489 |
+| 20.11.2026 | Test | Fix: Tabellenkopf wurde in leere `<tr>` im `<thead>` verschachtelt → Spalten standen verschoben. Jetzt `<thead></thead>` + Rendern direkt in `thead`; Smoke-Test prüft Kopfzeilen-Struktur | Rückmeldung Test: „Tabelle völlig verschoben“ | fd1b89b |
+| 20.11.2026 | Sitzung 1 | Erster Stand: Datenmodell (Kunde, Bestandsposten, Behältertyp, Bestandsbewegung, Status), Behälterstamm (34 Typen inkl. 7 Sondergestelle), Bestandsübersicht Maske 3.1 (Filter, Suche, Ampel, Sortierung, Liegezeit), 20 Beispielposten, Start per `index.html`/`start.bat` | Bauplan „Eigenbau Phase 1“, Sitzung 1, Detailplanung Phase 1 | b289e29 |
+
+## Offene Punkte (nächste Sitzungen)
+
+- Sitzung 2: Wareneingang als Kopf-Positions-Maske (Maske 3.2) mit Prüfungen je Zeile (R1 „Trotzdem speichern“, R8 Retoure-Grund) – Button in der Übersicht ist noch deaktiviert.
+- Sitzung 3: Posten-Detail mit Historie (Masken 3.3/3.4), Mengenkorrektur (R6), Sperren/Entsperren mit Grund (R7).
+- Sitzung 4: Rollen/Benutzerverwaltung, Kundenstamm, Behälterstamm-Pflege (Masken 3.5–3.7), Durchtestung Kriterien 1–8.
