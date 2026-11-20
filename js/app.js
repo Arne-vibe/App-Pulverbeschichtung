@@ -260,7 +260,7 @@ function rendernTabelle() {
       p.teilenummer,
       p.beschreibung || "",
       p.farbcode,
-      p.anzahlBehaelter + " × " + p.behaeltertyp,
+      p.anzahlBehaelter + " × " + p.behaeltertyp + " je " + p.teileProBehaelter + " (= " + p.stueckzahl + ")",
       p.bestellnummer || "",
       p.liefernummer || ""
     ];
