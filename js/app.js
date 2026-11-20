@@ -156,8 +156,8 @@ const SPALTEN = [
   { schluessel: "kunde", titel: "Kunde", sortierbar: true },
   { schluessel: "stueckzahl", titel: "Stueckzahl", sortierbar: true },
   { schluessel: "teilenummer", titel: "Teilenummer", sortierbar: true },
-  { schluessel: "farbcode", titel: "Farbcode", sortierbar: true },
   { schluessel: "beschreibung", titel: "Beschreibung", sortierbar: true },
+  { schluessel: "farbcode", titel: "Farbcode", sortierbar: true },
   { schluessel: "behaelter", titel: "Behaelter", sortierbar: true },
   { schluessel: "bestellnummer", titel: "Bestellnummer", sortierbar: true },
   { schluessel: "liefernummer", titel: "Liefernummer", sortierbar: true },
@@ -264,8 +264,8 @@ function rendernTabelle() {
       k ? k.kundennummer + " – " + k.kundenname : p.kunde,
       String(p.stueckzahl),
       p.teilenummer,
-      p.farbcode,
       p.beschreibung || "",
+      p.farbcode,
       p.anzahlBehaelter + " × " + p.behaeltertyp + " je " + p.teileProBehaelter + " (= " + p.stueckzahl + ")",
       p.bestellnummer || "",
       p.liefernummer || ""
@@ -431,6 +431,20 @@ function fuelleTeilenummerListe() {
   });
 }
 
+function fuelleFarbcodeListe() {
+  const dl = document.getElementById("farbcodeListe");
+  dl.innerHTML = "";
+  const siehe = new Set();
+  zustand.posten.forEach(function (p) {
+    if (p.farbcode && !siehe.has(p.farbcode)) {
+      siehe.add(p.farbcode);
+      const opt = document.createElement("option");
+      opt.value = p.farbcode;
+      dl.appendChild(opt);
+    }
+  });
+}
+
 function behaelterOptionenHtml(ausgewaehlt) {
   return BEHAELTERSTAMM.filter(function (b) { return !b.deaktiviert; })
     .slice()
@@ -454,7 +468,7 @@ function eingangZeileHtml(pos, i) {
     + '<td><select data-i="' + i + '" data-feld="buchungsart"><option value="Neuanlieferung"' + (pos.buchungsart === "Neuanlieferung" ? " selected" : "") + '>Neuanlieferung</option><option value="Retoure"' + (pos.buchungsart === "Retoure" ? " selected" : "") + '>Retoure</option></select></td>'
     + '<td><input type="text" data-i="' + i + '" data-feld="teilenummer" list="teilenummerListe" value="' + pos.teilenummer + '"></td>'
     + '<td><input type="text" data-i="' + i + '" data-feld="beschreibung" list="beschreibungsListe" value="' + pos.beschreibung + '"></td>'
-    + '<td><input type="text" data-i="' + i + '" data-feld="farbcode" value="' + pos.farbcode + '"></td>'
+    + '<td><input type="text" data-i="' + i + '" data-feld="farbcode" list="farbcodeListe" value="' + pos.farbcode + '"></td>'
     + '<td><input type="number" min="1" data-i="' + i + '" data-feld="stueckzahl" value="' + pos.stueckzahl + '"></td>'
     + '<td><select data-i="' + i + '" data-feld="behaeltertyp"><option value="">-- waehlen --</option>' + behaelterOptionenHtml(pos.behaeltertyp) + "</select></td>"
     + '<td><input type="number" min="1" data-i="' + i + '" data-feld="anzahlBehaelter" value="' + pos.anzahlBehaelter + '"></td>'
@@ -474,6 +488,7 @@ function rendernEingang() {
   document.getElementById("eingangDatum").value = zustand.eingang.datum || heuteIso();
   fuelleBeschreibungsListe();
   fuelleTeilenummerListe();
+  fuelleFarbcodeListe();
   const tbody = document.getElementById("positionsKörper");
   tbody.innerHTML = "";
   zustand.eingang.positionen.forEach(function (pos, i) {
@@ -489,7 +504,12 @@ function rendernEingang() {
       return;
     }
     el.addEventListener("input", function () {
-      zustand.eingang.positionen[i][feld] = el.value;
+      let v = el.value;
+      if (feld === "teilenummer") {
+        v = v.toUpperCase();
+        el.value = v;
+      }
+      zustand.eingang.positionen[i][feld] = v;
       aktualisierePruefung(i);
     });
     el.addEventListener("change", function () {
@@ -573,7 +593,7 @@ function eingangSpeichern() {
     const posten = {
       postennummer: nr,
       kunde: kunde,
-      teilenummer: p.teilenummer.trim(),
+      teilenummer: p.teilenummer.trim().toUpperCase(),
       beschreibung: p.beschreibung.trim(),
       stueckzahl: Number(p.stueckzahl),
       farbcode: p.farbcode.trim(),

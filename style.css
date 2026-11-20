@@ -1,9 +1,9 @@
 :root {
-  --marke: #005ca9;
-  --marke-dunkel: #00417a;
-  --marke-hell: #e3eef7;
-  --marke-hover: #eef5fb;
-  --marke-kopf-untergrund: #d8e6f3;
+  --marke: #16a34a;
+  --marke-dunkel: #14532d;
+  --marke-hell: #e2e6ea;
+  --marke-hover: #f0fdf4;
+  --marke-kopf-untergrund: #eef1f4;
 }
 
 * {
