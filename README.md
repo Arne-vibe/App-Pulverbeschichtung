@@ -29,7 +29,7 @@ Beim ersten Start werden 20 Beispiel-Posten geladen und lokal im Browser gespeic
 
 ## Behaelterstamm aus Behaelter.xlsx neu importieren
 
-Wenn `Behaelter.xlsx` (Blatt „Daten“, Spalten Behaelterbeschreibung/Behaeltercode) vorliegt:
+`Behaelter.xlsx` liegt im Repo-Wurzelverzeichnis (Blatt „Daten“, Spalten Behälterbeschreibung/Behätercode – Tippfehler im Spaltentitel werden automatisch bereinigt):
 
 ```
 python tools/behaelter-import.py Behaelter.xlsx
@@ -44,6 +44,7 @@ aus der Planung.
 ```
 AENDERUNGEN.md        Aenderungsprotokoll der App (Umsetzungsaenderungen, Fixes, Commits)
 docs/                 Gesamtplanung_App_Pulverbeschichtung.docx (versionierte Planungsgrundlage, Stand 19.11.2026)
+Behaelter.xlsx        Packmittel-Typen-Liste (Quelle fuer den Behaelterstamm-Import)
 index.html            Einstieg, laedt die App
 style.css             Darstellung
 js/modell.js          Datenmodell laut Planung (Entitaeten, Status, Regeln)
