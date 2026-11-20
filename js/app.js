@@ -431,18 +431,11 @@ function fuelleTeilenummerListe() {
   });
 }
 
-function fuelleFarbcodeListe() {
-  const dl = document.getElementById("farbcodeListe");
-  dl.innerHTML = "";
-  const siehe = new Set();
-  zustand.posten.forEach(function (p) {
-    if (p.farbcode && !siehe.has(p.farbcode)) {
-      siehe.add(p.farbcode);
-      const opt = document.createElement("option");
-      opt.value = p.farbcode;
-      dl.appendChild(opt);
-    }
-  });
+function farbcodeOptionenHtml(ausgewaehlt) {
+  return MODELL.farbcodeRegelwerk.map(function (f) {
+    const sel = f.farbcode === ausgewaehlt ? " selected" : "";
+    return '<option value="' + f.farbcode + '"' + sel + ">" + f.farbcode + " – " + f.name + "</option>";
+  }).join("");
 }
 
 function behaelterOptionenHtml(ausgewaehlt) {
@@ -468,7 +461,7 @@ function eingangZeileHtml(pos, i) {
     + '<td><select data-i="' + i + '" data-feld="buchungsart"><option value="Neuanlieferung"' + (pos.buchungsart === "Neuanlieferung" ? " selected" : "") + '>Neuanlieferung</option><option value="Retoure"' + (pos.buchungsart === "Retoure" ? " selected" : "") + '>Retoure</option></select></td>'
     + '<td><input type="text" data-i="' + i + '" data-feld="teilenummer" list="teilenummerListe" value="' + pos.teilenummer + '"></td>'
     + '<td><input type="text" data-i="' + i + '" data-feld="beschreibung" list="beschreibungsListe" value="' + pos.beschreibung + '"></td>'
-    + '<td><input type="text" data-i="' + i + '" data-feld="farbcode" list="farbcodeListe" value="' + pos.farbcode + '"></td>'
+    + '<td><select data-i="' + i + '" data-feld="farbcode"><option value="">-- waehlen --</option>' + farbcodeOptionenHtml(pos.farbcode) + "</select></td>"
     + '<td><input type="number" min="1" data-i="' + i + '" data-feld="stueckzahl" value="' + pos.stueckzahl + '"></td>'
     + '<td><select data-i="' + i + '" data-feld="behaeltertyp"><option value="">-- waehlen --</option>' + behaelterOptionenHtml(pos.behaeltertyp) + "</select></td>"
     + '<td><input type="number" min="1" data-i="' + i + '" data-feld="anzahlBehaelter" value="' + pos.anzahlBehaelter + '"></td>'
@@ -488,7 +481,6 @@ function rendernEingang() {
   document.getElementById("eingangDatum").value = zustand.eingang.datum || heuteIso();
   fuelleBeschreibungsListe();
   fuelleTeilenummerListe();
-  fuelleFarbcodeListe();
   const tbody = document.getElementById("positionsKörper");
   tbody.innerHTML = "";
   zustand.eingang.positionen.forEach(function (pos, i) {

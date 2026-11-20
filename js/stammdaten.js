@@ -27,21 +27,21 @@ const BEISPIEL_ROHPOSTEN = [
   ["P-2026-0003", "HN01", "JD-7721-045", "schwarz", "T2", 60, 1, "SJ6", 60, 18, "B-2026-121", "", "Rohteil", false, ""],
   ["P-2026-0004", "HU01", "HU-9980-12", "Primer + gruen", "A2ZZ2", 150, 3, "PK2", 50, 16, "", "L-88410", "Rohteil", false, ""],
   ["P-2026-0005", "HU01", "HU-9980-12", "Primer + gruen", "A2ZZ2", 50, 1, "Karton", 50, 16, "", "L-88410", "Rohteil", false, ""],
-  ["P-2026-0006", "VD01", "VDL-3310-77", "schwarz matt", "T2 matt", 48, 2, "GK4", 24, 14, "B-2026-130", "L-88455", "Produktion", false, ""],
-  ["P-2026-0007", "VD01", "VDL-3310-77", "schwarz matt", "T2 matt", 96, 4, "GKA", 24, 9, "B-2026-141", "", "Produktion", false, ""],
+  ["P-2026-0006", "VD01", "VDL-3310-77", "schwarz matt", "T2", 48, 2, "GK4", 24, 14, "B-2026-130", "L-88455", "Produktion", false, ""],
+  ["P-2026-0007", "VD01", "VDL-3310-77", "schwarz matt", "T2", 96, 4, "GKA", 24, 9, "B-2026-141", "", "Produktion", false, ""],
   ["P-2026-0008", "VD01", "VDL-5502-30", "gruen", "A2", 200, 5, "GKA", 40, 7, "", "L-88502", "Fertigteil", false, ""],
   ["P-2026-0009", "ZE01", "ZW-1188-04", "Primer + schwarz", "T2ZZ2", 36, 2, "SJ3", 18, 12, "B-2026-118", "", "Rohteil", false, ""],
   ["P-2026-0010", "ZE01", "ZW-1188-04", "Primer + schwarz", "T2ZZ2", 90, 3, "EWP", 30, 5, "B-2026-118", "", "Fertigteil", false, ""],
   ["P-2026-0011", "KB01", "KBM-6650-21", "gruen", "A2", 64, 4, "KH4", 16, 20, "B-KBM-332", "L-77120", "Rohteil", false, ""],
   ["P-2026-0012", "KB01", "KBM-6650-21", "gruen", "A2", 32, 2, "KH4", 16, 20, "B-KBM-332", "L-77120", "Rohteil", false, ""],
   ["P-2026-0013", "KB01", "KBM-2210-08", "schwarz", "T2", 24, 1, "SLT", 24, 11, "", "L-77201", "Produktion", false, ""],
-  ["P-2026-0014", "WB01", "WB-4455-90", "rot", "Red 1", 100, 5, "PK2", 20, 15, "B-WB-587", "", "Rohteil", false, ""],
-  ["P-2026-0015", "WB01", "WB-4455-90", "rot", "Red 1", 60, 3, "PK2", 20, 8, "B-WB-601", "", "Fertigteil", false, ""],
-  ["P-2026-0016", "ST01", "ST-9021-33", "gelb", "GE1", 45, 3, "GKA", 15, 13, "", "L-66340", "Rohteil", false, ""],
-  ["P-2026-0017", "ST01", "ST-9021-33", "gelb", "GE1", 30, 2, "GK4", 15, 13, "", "L-66340", "Produktion", false, ""],
-  ["P-2026-0018", "HN01", "JD-1102-66", "Black 8", "BL8", 18, 2, "IMD244285", 9, 6, "B-2026-150", "", "Rohteil", true, "Qualitaetsbefund, Freigabe ausstehend"],
+  ["P-2026-0014", "WB01", "WB-4455-90", "rot", "RED1", 100, 5, "PK2", 20, 15, "B-WB-587", "", "Rohteil", false, ""],
+  ["P-2026-0015", "WB01", "WB-4455-90", "rot", "RED1", 60, 3, "PK2", 20, 8, "B-WB-601", "", "Fertigteil", false, ""],
+  ["P-2026-0016", "ST01", "ST-9021-33", "gelb", "F9H", 45, 3, "GKA", 15, 13, "", "L-66340", "Rohteil", false, ""],
+  ["P-2026-0017", "ST01", "ST-9021-33", "gelb", "F9H", 30, 2, "GK4", 15, 13, "", "L-66340", "Produktion", false, ""],
+  ["P-2026-0018", "HN01", "JD-1102-66", "Black 8", "BLACK8", 18, 2, "IMD244285", 9, 6, "B-2026-150", "", "Rohteil", true, "Qualitaetsbefund, Freigabe ausstehend"],
   ["P-2026-0019", "VD01", "VDL-7788-19", "Primer + gruen", "A2ZZ2", 80, 2, "RDL", 40, 4, "", "L-88590", "Rohteil", false, ""],
-  ["P-2026-0020", "ZE01", "ZW-7745-02", "schwarz matt", "T2 matt", 12, 1, "Holzbox", 12, 2, "B-2026-155", "", "Rohteil", false, ""]
+  ["P-2026-0020", "ZE01", "ZW-7745-02", "schwarz matt", "T2", 12, 1, "Holzbox", 12, 2, "B-2026-155", "", "Rohteil", false, ""]
 ];
 
 function beispielDaten() {

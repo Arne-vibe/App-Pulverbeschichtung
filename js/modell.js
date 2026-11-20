@@ -61,6 +61,15 @@ const MODELL = {
     "Einlagerung", "Abrufzuordnung", "Warenausgang", "Mengenkorrektur",
     "Sperren", "Entsperren", "Retoure"
   ],
+  farbcodeRegelwerk: [
+    { farbcode: "A2", name: "John Deere gruen", standardKabine: "Automatik", beschichtungsart: "einfach" },
+    { farbcode: "A2ZZ2", name: "John Deere gruen", standardKabine: "Automatik", beschichtungsart: "2-fach (ZZ2: Primer + Decklack)" },
+    { farbcode: "T2", name: "John Deere schwarz", standardKabine: "Hand", beschichtungsart: "einfach" },
+    { farbcode: "T2ZZ2", name: "John Deere schwarz", standardKabine: "Hand", beschichtungsart: "2-fach (ZZ2: Primer + Decklack)" },
+    { farbcode: "F9H", name: "John Deere gelb", standardKabine: "Hand", beschichtungsart: "einfach" },
+    { farbcode: "BLACK8", name: "Kubota Black 8", standardKabine: "Hand", beschichtungsart: "einfach" },
+    { farbcode: "RED1", name: "Kubota Red 1", standardKabine: "Hand", beschichtungsart: "einfach" }
+  ],
   beschreibungsVorauswahl: [
     "gruen", "Primer + gruen", "schwarz matt", "Primer + schwarz matt", "schwarz",
     "Primer + schwarz", "rot", "gelb", "Black 8", "Red 1"
