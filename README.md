@@ -43,6 +43,7 @@ aus der Planung.
 
 ```
 AENDERUNGEN.md        Aenderungsprotokoll der App (Umsetzungsaenderungen, Fixes, Commits)
+docs/                 Gesamtplanung_App_Pulverbeschichtung.docx (versionierte Planungsgrundlage, Stand 19.11.2026)
 index.html            Einstieg, laedt die App
 style.css             Darstellung
 js/modell.js          Datenmodell laut Planung (Entitaeten, Status, Regeln)

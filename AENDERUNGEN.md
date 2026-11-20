@@ -8,6 +8,7 @@ Neueste Einträge oben. Format beibehalten: `Datum | Sitzung | Änderung | Grund
 
 | Datum | Sitzung | Änderung | Grund/Anlass | Commit |
 |---|---|---|---|---|
+| 20.11.2026 | Sitzung 1 | `Gesamtplanung_App_Pulverbeschichtung.docx` (Stand 19.11.2026) nach `docs/` ins Repo übernommen und versioniert (byte-identisch, md5 geprüft) | Bauplan Schritt 1: aktuelle Gesamtplanung liegt im Projektordner; Nutzerfreigabe zur Versionierung im Repo. **Behaelter.xlsx liegt noch nicht vor** und kann nachgereicht werden (Import siehe `tools/behaelter-import.py`) | siehe nächster Commit |
 | 20.11.2026 | Test | Farbschema aller Ansichten auf Blau umgestellt (Markenfarbe); Farben zentral als CSS-Variablen in `:root` (`style.css`), aktuell `#005ca9` / `#00417a`. Ampel- und Statusfarben bleiben semantisch (grün/gelb/rot). | Rückmeldung Test: Hausfarbe blau (www.buch-lot.de; exakter Hex-Wert dort nicht automatisiert auslesbar, in `:root` zentral anpassbar) | 8f0794d |
 | 20.11.2026 | Test | Spalten **Farbcode und Beschreibung getauscht** (neu: … Teilenummer, Farbcode, Beschreibung, Behälter …) | Rückmeldung Test | 8f0794d |
 | 20.11.2026 | Test | Spalte **Behälter um „je“-Angabe ergänzt**: „5 × GKA je 20 (= 100)“ statt nur „5 × GKA“ | Rückmeldung Test; Teile-je-Behälter aus Phase 1 als „je“-Angabe (Phase-2-Planung) | 3a4b489 |
