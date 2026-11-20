@@ -226,7 +226,7 @@ function rendernKopfzeile(tbodyKopf) {
 }
 
 function rendernTabelle() {
-  const thead = document.querySelector("#bestandstabelle thead tr");
+  const thead = document.querySelector("#bestandstabelle thead");
   rendernKopfzeile(thead);
   const tbody = document.querySelector("#bestandstabelle tbody");
   tbody.innerHTML = "";
