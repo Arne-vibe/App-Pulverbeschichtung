@@ -104,7 +104,7 @@ function postenGefiltert() {
     if (f.liefernummer && !textEnthaelt(p.liefernummer || "", f.liefernummer)) return false;
     if (suche) {
       const k = kundeZu(p) || { kundennummer: p.kunde, kundenname: p.kunde };
-      const haystack = [p.postennummer, k.kundennummer, k.kundenname, p.teilenummer, p.beschreibung, p.farbcode, p.behaeltertyp, p.bestellnummer, p.liefernummer].join(" ");
+      const haystack = [p.postennummer, k.kundennummer, k.kundenname, p.teilenummer, p.farbcode, p.behaeltertyp, p.bestellnummer, p.liefernummer].join(" ");
       if (!textEnthaelt(haystack, suche)) return false;
     }
     return true;
@@ -118,7 +118,6 @@ function sortWert(p, schluessel) {
     case "stueckzahl": return p.stueckzahl;
     case "teilenummer": return p.teilenummer.toLowerCase();
     case "farbcode": return p.farbcode.toLowerCase();
-    case "beschreibung": return (p.beschreibung || "").toLowerCase();
     case "behaelter": return p.behaeltertyp.toLowerCase();
     case "bestellnummer": return (p.bestellnummer || "").toLowerCase();
     case "liefernummer": return (p.liefernummer || "").toLowerCase();
@@ -156,7 +155,6 @@ const SPALTEN = [
   { schluessel: "kunde", titel: "Kunde", sortierbar: true },
   { schluessel: "stueckzahl", titel: "Stueckzahl", sortierbar: true },
   { schluessel: "teilenummer", titel: "Teilenummer", sortierbar: true },
-  { schluessel: "beschreibung", titel: "Beschreibung", sortierbar: true },
   { schluessel: "farbcode", titel: "Farbcode", sortierbar: true },
   { schluessel: "behaelter", titel: "Behaelter", sortierbar: true },
   { schluessel: "bestellnummer", titel: "Bestellnummer", sortierbar: true },
@@ -271,7 +269,6 @@ function rendernTabelle() {
       k ? k.kundennummer + " – " + k.kundenname : p.kunde,
       String(p.stueckzahl),
       p.teilenummer,
-      p.beschreibung || "",
       p.farbcode,
       p.anzahlBehaelter + " × " + p.behaeltertyp + " je " + p.teileProBehaelter + " (= " + p.stueckzahl + ")",
       p.bestellnummer || "",
@@ -371,7 +368,6 @@ function rendernDetail(nr) {
   const felder = [
     ["Kunde", k ? k.kundennummer + " – " + k.kundenname : p.kunde],
     ["Teilenummer", p.teilenummer],
-    ["Beschreibung", p.beschreibung || "–"],
     ["Farbcode", farbcodeName(p.farbcode)],
     ["Stueckzahl", String(p.stueckzahl)],
     ["Behaelter", p.anzahlBehaelter + " × " + p.behaeltertyp + " je " + p.teileProBehaelter],
@@ -485,7 +481,6 @@ function neuePosition() {
   return {
     buchungsart: "Neuanlieferung",
     teilenummer: "",
-    beschreibung: "",
     farbcode: "",
     stueckzahl: "",
     behaeltertyp: "",
@@ -530,16 +525,6 @@ function naechsteBewegungsId() {
   return "B-" + String(max + 1).padStart(4, "0");
 }
 
-function fuelleBeschreibungsListe() {
-  const dl = document.getElementById("beschreibungsListe");
-  dl.innerHTML = "";
-  MODELL.beschreibungsVorauswahl.forEach(function (b) {
-    const opt = document.createElement("option");
-    opt.value = b;
-    dl.appendChild(opt);
-  });
-}
-
 function fuelleTeilenummerListe() {
   const dl = document.getElementById("teilenummerListe");
   dl.innerHTML = "";
@@ -579,12 +564,11 @@ function eingangZeileHtml(pos, i) {
     ? '<span class="warn">⚠ ' + r1.stueckzahl + " ≠ " + r1.anzahl + " × " + r1.teile + " = " + r1.gerechnet + '</span><br><label class="trotzdem"><input type="checkbox" data-i="' + i + '" data-feld="r1Bestaetigt"' + (pos.r1Bestaetigt ? " checked" : "") + '> Trotzdem speichern</label>'
     : '<span class="ok">ok</span>';
   const retoure = pos.buchungsart === "Retoure"
-    ? '<tr class="retoure-zeile" data-retoure="' + i + '"><td colspan="13">Retoure-Grund (Pflicht, R8): <select data-i="' + i + '" data-feld="retoureGrund"><option value="">bitte waehlen</option><option value="Nacharbeit"' + (pos.retoureGrund === "Nacharbeit" ? " selected" : "") + '>Nacharbeit</option><option value="Reklamation"' + (pos.retoureGrund === "Reklamation" ? " selected" : "") + '>Reklamation</option></select></td></tr>'
+    ? '<tr class="retoure-zeile" data-retoure="' + i + '"><td colspan="12">Retoure-Grund (Pflicht, R8): <select data-i="' + i + '" data-feld="retoureGrund"><option value="">bitte waehlen</option><option value="Nacharbeit"' + (pos.retoureGrund === "Nacharbeit" ? " selected" : "") + '>Nacharbeit</option><option value="Reklamation"' + (pos.retoureGrund === "Reklamation" ? " selected" : "") + '>Reklamation</option></select></td></tr>'
     : "";
   return '<tr data-i="' + i + '">'
     + '<td><select data-i="' + i + '" data-feld="buchungsart"><option value="Neuanlieferung"' + (pos.buchungsart === "Neuanlieferung" ? " selected" : "") + '>Neuanlieferung</option><option value="Retoure"' + (pos.buchungsart === "Retoure" ? " selected" : "") + '>Retoure</option></select></td>'
     + '<td><input type="text" data-i="' + i + '" data-feld="teilenummer" list="teilenummerListe" value="' + pos.teilenummer + '"></td>'
-    + '<td><input type="text" data-i="' + i + '" data-feld="beschreibung" list="beschreibungsListe" value="' + pos.beschreibung + '"></td>'
     + '<td><select data-i="' + i + '" data-feld="farbcode"><option value="">-- waehlen --</option>' + farbcodeOptionenHtml(pos.farbcode) + "</select></td>"
     + '<td><input type="number" min="1" data-i="' + i + '" data-feld="stueckzahl" value="' + pos.stueckzahl + '"></td>'
     + '<td><select data-i="' + i + '" data-feld="behaeltertyp"><option value="">-- waehlen --</option>' + behaelterOptionenHtml(pos.behaeltertyp) + "</select></td>"
@@ -604,7 +588,6 @@ function rendernEingang() {
   fuelleKundenSelect(kundeSelect, true);
   kundeSelect.value = zustand.eingang.kunde || constalteWerte;
   document.getElementById("eingangDatum").value = zustand.eingang.datum || heuteIso();
-  fuelleBeschreibungsListe();
   fuelleTeilenummerListe();
   const tbody = document.getElementById("positionsKörper");
   tbody.innerHTML = "";
@@ -711,7 +694,6 @@ function eingangSpeichern() {
       postennummer: nr,
       kunde: kunde,
       teilenummer: p.teilenummer.trim().toUpperCase(),
-      beschreibung: p.beschreibung.trim(),
       stueckzahl: Number(p.stueckzahl),
       farbcode: p.farbcode.trim(),
       anzahlBehaelter: Number(p.anzahlBehaelter),

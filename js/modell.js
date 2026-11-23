@@ -14,7 +14,6 @@ const MODELL = {
         postennummer: { typ: "Text", pflicht: true, regel: "eindeutig, automatisch vergeben" },
         kunde: { typ: "Verweis auf Kunde", pflicht: true, regel: "" },
         teilenummer: { typ: "Text", pflicht: true, regel: "frei nach Kundenangabe" },
-        beschreibung: { typ: "Text", pflicht: false, regel: "Freitext mit Vorauswahlliste" },
         stueckzahl: { typ: "Ganzzahl", pflicht: true, regel: "muss > 0 sein" },
         farbcode: { typ: "Text", pflicht: true, regel: "" },
         anzahlBehaelter: { typ: "Ganzzahl", pflicht: true, regel: "muss > 0 sein" },
@@ -72,10 +71,6 @@ const MODELL = {
     { farbcode: "F9H", name: "John Deere gelb", standardKabine: "Hand", beschichtungsart: "einfach" },
     { farbcode: "BLACK8", name: "Kubota Black 8", standardKabine: "Hand", beschichtungsart: "einfach" },
     { farbcode: "RED1", name: "Kubota Red 1", standardKabine: "Hand", beschichtungsart: "einfach" }
-  ],
-  beschreibungsVorauswahl: [
-    "gruen", "Primer + gruen", "schwarz matt", "Primer + schwarz matt", "schwarz",
-    "Primer + schwarz", "rot", "gelb", "Black 8", "Red 1"
   ],
   regeln: {
     R1: "Stueckzahl = Anzahl Behaelter x Teilestueckzahl pro Behaelter; Abweichung -> Warnung mit 'Trotzdem speichern'",

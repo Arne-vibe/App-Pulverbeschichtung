@@ -56,7 +56,6 @@ function beispielDaten() {
       postennummer: r[0],
       kunde: r[1],
       teilenummer: r[2],
-      beschreibung: r[3],
       farbcode: r[4],
       stueckzahl: r[5],
       anzahlBehaelter: r[6],
