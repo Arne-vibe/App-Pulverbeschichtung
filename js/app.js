@@ -395,6 +395,21 @@ function rendernDetail(nr) {
   });
   document.getElementById("detailWunsch").value = p.wunschliefertermin || "";
   document.getElementById("detailPrio").checked = !!p.prio;
+  const korrTyp = document.getElementById("korrTyp");
+  korrTyp.innerHTML = "";
+  BEHAELTERSTAMM.filter(function (b) { return !b.deaktiviert; })
+    .slice()
+    .sort(function (a, b) { return a.anzeigereihenfolge - b.anzeigereihenfolge; })
+    .forEach(function (b) {
+      const opt = document.createElement("option");
+      opt.value = b.behaeltercode;
+      opt.textContent = b.behaeltercode + " – " + b.behaelterbeschreibung;
+      korrTyp.appendChild(opt);
+    });
+  korrTyp.value = p.behaeltertyp;
+  document.getElementById("korrAnzahl").value = p.anzahlBehaelter;
+  document.getElementById("korrTeile").value = p.teileProBehaelter;
+  aktualisiereKorrHinweis(nr);
   const koerper = document.getElementById("historieKörper");
   koerper.innerHTML = "";
   zustand.bewegungen
@@ -431,6 +446,43 @@ function togglePrio(nr, an) {
   rendernDetail(nr);
 }
 
+function aktualisiereKorrHinweis(nr) {
+  const p = postenFinden(nr);
+  const el = document.getElementById("korrHinweis");
+  if (!p || !el) return;
+  const a = Number(document.getElementById("korrAnzahl").value);
+  const t = Number(document.getElementById("korrTeile").value);
+  if (isNaN(a) || isNaN(t)) { el.textContent = ""; return; }
+  if (a * t !== p.stueckzahl) {
+    el.textContent = "Hinweis (R9): " + a + " × " + t + " = " + (a * t) + " ≠ Stueckzahl " + p.stueckzahl + " – nur Hinweis, keine Blockierung.";
+  } else {
+    el.textContent = "";
+  }
+}
+
+function behaelterKorrigieren(nr, typ, anzahl, teilePro) {
+  const p = postenFinden(nr);
+  if (!p) return;
+  if (!BEHAELTERSTAMM.some(function (b) { return b.behaeltercode === typ && !b.deaktiviert; })) {
+    alert("Behaeltertyp muss aus dem Behaelterstamm gewaehlt werden (R3).");
+    return;
+  }
+  anzahl = Number(anzahl);
+  teilePro = Number(teilePro);
+  if (isNaN(anzahl) || anzahl <= 0 || isNaN(teilePro) || teilePro < 0) {
+    alert("Anzahl Behaelter (> 0) und Teile je Behaelter (>= 0) muessen gueltige Zahlen sein.");
+    return;
+  }
+  const vorher = p.anzahlBehaelter + " × " + p.behaeltertyp + " je " + p.teileProBehaelter;
+  p.behaeltertyp = typ;
+  p.anzahlBehaelter = anzahl;
+  p.teileProBehaelter = teilePro;
+  const nachher = anzahl + " × " + typ + " je " + teilePro + (anzahl * teilePro !== p.stueckzahl ? " (Hinweis: ≠ Stueckzahl " + p.stueckzahl + ")" : "");
+  bewegungSchreiben(p, "Behaelterkorrektur", vorher, nachher);
+  speichereDaten();
+  rendernDetail(nr);
+}
+
 function detailVerbinden() {
   document.getElementById("detailZurueck").addEventListener("click", function () {
     zeigeAnsicht("bestand");
@@ -442,6 +494,17 @@ function detailVerbinden() {
   document.getElementById("detailPrio").addEventListener("change", function (e) {
     const nr = (document.getElementById("detailTitel").textContent.match(/P-\d{4}-\d{4}/) || [])[0];
     if (nr) togglePrio(nr, e.target.checked);
+  });
+  ["korrAnzahl", "korrTeile"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", function () {
+      const nr = (document.getElementById("detailTitel").textContent.match(/P-\d{4}-\d{4}/) || [])[0];
+      if (nr) aktualisiereKorrHinweis(nr);
+    });
+  });
+  document.getElementById("korrUebernehmen").addEventListener("click", function () {
+    const nr = (document.getElementById("detailTitel").textContent.match(/P-\d{4}-\d{4}/) || [])[0];
+    if (!nr) return;
+    behaelterKorrigieren(nr, document.getElementById("korrTyp").value, document.getElementById("korrAnzahl").value, document.getElementById("korrTeile").value);
   });
 }
 

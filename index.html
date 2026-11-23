@@ -132,6 +132,25 @@
       </div>
     </div>
     <div class="detail-karte">
+      <h3>Behaelter korrigieren (R9 – jederzeit moeglich, auch bei Produktion/Fertigteil/gesperrt)</h3>
+      <div class="detail-edit">
+        <div class="feld">
+          <label for="korrTyp">Behaeltertyp (nur aus Behaelterstamm, R3)</label>
+          <select id="korrTyp"></select>
+        </div>
+        <div class="feld">
+          <label for="korrAnzahl">Anzahl Behaelter</label>
+          <input id="korrAnzahl" type="number" min="1">
+        </div>
+        <div class="feld">
+          <label for="korrTeile">Teile je Behaelter</label>
+          <input id="korrTeile" type="number" min="0">
+        </div>
+        <button id="korrUebernehmen" class="sekundaer">Behaelter uebernehmen</button>
+      </div>
+      <p id="korrHinweis" class="hinweis"></p>
+    </div>
+    <div class="detail-karte">
       <h3>Historie (neueste zuerst)</h3>
       <div class="historie-wrap">
         <table id="historieTabelle">

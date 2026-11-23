@@ -61,7 +61,7 @@ const MODELL = {
     "Wareneingang", "Einplanung", "Statuswechsel", "Produktion abgeschlossen",
     "Einlagerung", "Abrufzuordnung", "Warenausgang", "Mengenkorrektur",
     "Sperren", "Entsperren", "Retoure",
-    "Prio gesetzt", "Prio entfernt", "Wunsch-Liefertermin geaendert"
+    "Prio gesetzt", "Prio entfernt", "Wunsch-Liefertermin geaendert", "Behaelterkorrektur"
   ],
   farbcodeRegelwerk: [
     { farbcode: "A2", name: "John Deere gruen", standardKabine: "Automatik", beschichtungsart: "einfach" },
@@ -80,6 +80,7 @@ const MODELL = {
     R5: "Loeschen aktiver Posten nicht erlaubt, nur Mengenkorrektur",
     R6: "Mengenkorrektur nur durch Buero/Admin; Historie protokolliert Aenderung und Benutzer",
     R7: "Sperre (rot) nur durch Buero/Admin mit Sperrgrund; gesperrte Posten sind blockiert",
-    R8: "Retoure nur mit Retoure-Grund (Nacharbeit/Reklamation); neuer Posten als Rohteil"
+    R8: "Retoure nur mit Retoure-Grund (Nacharbeit/Reklamation); neuer Posten als Rohteil",
+    R9: "Behaelterkorrektur (Entscheidung 23.11.2026): Behaeltertyp/Anzahl/Teile je Behaelter am Posten jederzeit aenderbar, unabhaengig vom Status; nur Behaeltertypen aus dem Stamm (R3); Stueckzahl bleibt unveraendert, Abweichung Anzahl x Teile je Behaelter -> nur Hinweis; jede Korrektur als Bewegung 'Behaelterkorrektur' mit alt/neu, Benutzer, Datum protokolliert"
   }
 };
