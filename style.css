@@ -266,7 +266,7 @@ button.primaer:active {
 
 table {
   width: 100%;
-  min-width: 1100px;
+  min-width: 900px;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
@@ -393,7 +393,7 @@ td.leer {
 }
 
 #positionen {
-  min-width: 1150px;
+  min-width: 1000px;
 }
 
 #positionen th {
