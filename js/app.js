@@ -258,6 +258,13 @@ function rendernTabelle() {
     ampel.className = "ampel " + ampelKlasse(p);
     ampel.title = ampelTitel(p);
     tdAmpel.appendChild(ampel);
+    if (p.prio) {
+      const star = document.createElement("span");
+      star.className = "badge badge-prio";
+      star.textContent = "★ Prio";
+      star.title = "Als Prio markiert";
+      tdAmpel.appendChild(star);
+    }
     tr.appendChild(tdAmpel);
 
     const zellen = [
@@ -305,6 +312,11 @@ function rendernTabelle() {
     tdLiege.textContent = tage === 0 ? "heute" : tage + " Tage";
     tr.appendChild(tdLiege);
 
+    tr.classList.add("zeile-klick");
+    tr.title = "Posten-Detail öffnen";
+    tr.addEventListener("click", function () {
+      zeigeAnsicht("detail", p.postennummer);
+    });
     tbody.appendChild(tr);
   });
 }
@@ -319,13 +331,122 @@ function zeigeBestaetigung(text) {
   el.hidden = false;
 }
 
-function zeigeAnsicht(name) {
+function zeigeAnsicht(name, postenNr) {
   document.getElementById("ansicht-bestand").hidden = name !== "bestand";
   document.getElementById("ansicht-wareneingang").hidden = name !== "wareneingang";
+  document.getElementById("ansicht-detail").hidden = name !== "detail";
   document.getElementById("navBestand").className = "nav" + (name === "bestand" ? " aktiv" : "");
   document.getElementById("wareneingang").className = "nav" + (name === "wareneingang" ? " aktiv" : "");
   if (name === "wareneingang") rendernEingang();
   if (name === "bestand") rendern();
+  if (name === "detail" && postenNr) rendernDetail(postenNr);
+}
+
+function postenFinden(nr) {
+  return zustand.posten.find(function (p) { return p.postennummer === nr; });
+}
+
+function bewegungSchreiben(posten, art, vorher, nachher) {
+  zustand.bewegungen.push({
+    id: naechsteBewegungsId(),
+    posten: posten.postennummer,
+    bewegungsart: art,
+    datumUhrzeit: new Date().toISOString(),
+    vorherWert: vorher,
+    nachherWert: nachher,
+    benutzer: BENUTZER
+  });
+}
+
+function farbcodeName(code) {
+  const f = MODELL.farbcodeRegelwerk.find(function (x) { return x.farbcode === code; });
+  return f ? code + " – " + f.name : code;
+}
+
+function rendernDetail(nr) {
+  const p = postenFinden(nr);
+  if (!p) return;
+  const k = kundeZu(p);
+  document.getElementById("detailTitel").textContent = "Posten " + p.postennummer + " · " + (k ? k.kundenname : p.kunde);
+  const felder = [
+    ["Kunde", k ? k.kundennummer + " – " + k.kundenname : p.kunde],
+    ["Teilenummer", p.teilenummer],
+    ["Beschreibung", p.beschreibung || "–"],
+    ["Farbcode", farbcodeName(p.farbcode)],
+    ["Stueckzahl", String(p.stueckzahl)],
+    ["Behaelter", p.anzahlBehaelter + " × " + p.behaeltertyp + " je " + p.teileProBehaelter],
+    ["Bestellnummer", p.bestellnummer || "–"],
+    ["Liefernummer", p.liefernummer || "–"],
+    ["Status", p.status + (p.gesperrt ? " (gesperrt: " + (p.sperrgrund || "") + ")" : "")],
+    ["Wareneingangsdatum", formatDatum(p.wareneingangsdatum)],
+    ["Warenausgangsdatum", p.warenausgangsdatum ? formatDatum(p.warenausgangsdatum) : "–"],
+    ["Liegezeit", liegezeitTage(p) === 0 ? "heute" : liegezeitTage(p) + " Tage"],
+    ["Buchungsart", p.buchungsart || "Neuanlieferung" + (p.retoureGrund ? " (Retoure: " + p.retoureGrund + ")" : "")]
+  ];
+  const grid = document.getElementById("detailFelder");
+  grid.innerHTML = "";
+  felder.forEach(function (f) {
+    const div = document.createElement("div");
+    div.className = "eintrag";
+    const lab = document.createElement("label");
+    lab.textContent = f[0];
+    const wert = document.createElement("div");
+    wert.className = "wert";
+    wert.textContent = f[1];
+    div.appendChild(lab);
+    div.appendChild(wert);
+    grid.appendChild(div);
+  });
+  document.getElementById("detailWunsch").value = p.wunschliefertermin || "";
+  document.getElementById("detailPrio").checked = !!p.prio;
+  const koerper = document.getElementById("historieKörper");
+  koerper.innerHTML = "";
+  zustand.bewegungen
+    .filter(function (b) { return b.posten === nr; })
+    .sort(function (a, b) { return b.datumUhrzeit < a.datumUhrzeit ? -1 : 1; })
+    .forEach(function (b) {
+      const tr = document.createElement("tr");
+      [new Date(b.datumUhrzeit).toLocaleString("de-DE"), b.bewegungsart, b.vorherWert || "–", b.nachherWert, b.benutzer].forEach(function (t) {
+        const td = document.createElement("td");
+        td.textContent = t;
+        tr.appendChild(td);
+      });
+      koerper.appendChild(tr);
+    });
+}
+
+function setzeWunsch(nr, wert) {
+  const p = postenFinden(nr);
+  if (!p) return;
+  const vorher = p.wunschliefertermin ? formatDatum(p.wunschliefertermin) : "–";
+  p.wunschliefertermin = wert || null;
+  bewegungSchreiben(p, "Wunsch-Liefertermin geaendert", vorher, wert ? formatDatum(wert) : "–");
+  speichereDaten();
+  rendernDetail(nr);
+}
+
+function togglePrio(nr, an) {
+  const p = postenFinden(nr);
+  if (!p || !!p.prio === an) return;
+  const vorher = p.prio ? "Prio: Ja" : "Prio: Nein";
+  p.prio = an;
+  bewegungSchreiben(p, an ? "Prio gesetzt" : "Prio entfernt", vorher, an ? "Prio: Ja" : "Prio: Nein");
+  speichereDaten();
+  rendernDetail(nr);
+}
+
+function detailVerbinden() {
+  document.getElementById("detailZurueck").addEventListener("click", function () {
+    zeigeAnsicht("bestand");
+  });
+  document.getElementById("detailWunsch").addEventListener("change", function (e) {
+    const nr = (document.getElementById("detailTitel").textContent.match(/P-\d{4}-\d{4}/) || [])[0];
+    if (nr) setzeWunsch(nr, e.target.value);
+  });
+  document.getElementById("detailPrio").addEventListener("change", function (e) {
+    const nr = (document.getElementById("detailTitel").textContent.match(/P-\d{4}-\d{4}/) || [])[0];
+    if (nr) togglePrio(nr, e.target.checked);
+  });
 }
 
 function filterVerbinden() {
@@ -372,6 +493,7 @@ function neuePosition() {
     teileProBehaelter: "",
     bestellnummer: "",
     liefernummer: "",
+    wunschliefertermin: "",
     retoureGrund: "",
     r1Bestaetigt: false
   };
@@ -457,7 +579,7 @@ function eingangZeileHtml(pos, i) {
     ? '<span class="warn">⚠ ' + r1.stueckzahl + " ≠ " + r1.anzahl + " × " + r1.teile + " = " + r1.gerechnet + '</span><br><label class="trotzdem"><input type="checkbox" data-i="' + i + '" data-feld="r1Bestaetigt"' + (pos.r1Bestaetigt ? " checked" : "") + '> Trotzdem speichern</label>'
     : '<span class="ok">ok</span>';
   const retoure = pos.buchungsart === "Retoure"
-    ? '<tr class="retoure-zeile" data-retoure="' + i + '"><td colspan="12">Retoure-Grund (Pflicht, R8): <select data-i="' + i + '" data-feld="retoureGrund"><option value="">bitte waehlen</option><option value="Nacharbeit"' + (pos.retoureGrund === "Nacharbeit" ? " selected" : "") + '>Nacharbeit</option><option value="Reklamation"' + (pos.retoureGrund === "Reklamation" ? " selected" : "") + '>Reklamation</option></select></td></tr>'
+    ? '<tr class="retoure-zeile" data-retoure="' + i + '"><td colspan="13">Retoure-Grund (Pflicht, R8): <select data-i="' + i + '" data-feld="retoureGrund"><option value="">bitte waehlen</option><option value="Nacharbeit"' + (pos.retoureGrund === "Nacharbeit" ? " selected" : "") + '>Nacharbeit</option><option value="Reklamation"' + (pos.retoureGrund === "Reklamation" ? " selected" : "") + '>Reklamation</option></select></td></tr>'
     : "";
   return '<tr data-i="' + i + '">'
     + '<td><select data-i="' + i + '" data-feld="buchungsart"><option value="Neuanlieferung"' + (pos.buchungsart === "Neuanlieferung" ? " selected" : "") + '>Neuanlieferung</option><option value="Retoure"' + (pos.buchungsart === "Retoure" ? " selected" : "") + '>Retoure</option></select></td>'
@@ -470,6 +592,7 @@ function eingangZeileHtml(pos, i) {
     + '<td><input type="number" min="0" data-i="' + i + '" data-feld="teileProBehaelter" value="' + pos.teileProBehaelter + '"></td>'
     + '<td><input type="text" data-i="' + i + '" data-feld="bestellnummer" value="' + pos.bestellnummer + '"></td>'
     + '<td><input type="text" data-i="' + i + '" data-feld="liefernummer" value="' + pos.liefernummer + '"></td>'
+    + '<td><input type="date" data-i="' + i + '" data-feld="wunschliefertermin" value="' + pos.wunschliefertermin + '" title="optional, rein informativ"></td>'
     + '<td class="pruefung">' + pruefung + "</td>"
     + '<td><button type="button" class="loeschen" data-i="' + i + '" title="Position loeschen">✕</button></td>'
     + "</tr>" + retoure;
@@ -603,7 +726,9 @@ function eingangSpeichern() {
       sperrgrund: "",
       produktionsdatum: null,
       buchungsart: p.buchungsart,
-      retoureGrund: p.buchungsart === "Retoure" ? p.retoureGrund : ""
+      retoureGrund: p.buchungsart === "Retoure" ? p.retoureGrund : "",
+      wunschliefertermin: p.wunschliefertermin || null,
+      prio: false
     };
     zustand.posten.push(posten);
     neu.push(nr);
@@ -657,6 +782,7 @@ function init() {
   fuelleBehaelterSelect(document.getElementById("filterBehaeltertyp"));
   filterVerbinden();
   eingangVerbinden();
+  detailVerbinden();
   rendern();
 }
 

@@ -27,7 +27,9 @@ const MODELL = {
         status: { typ: "Auswahlliste", pflicht: true, regel: "Rohteil, Produktion, Fertigteil, Abgeschlossen" },
         gesperrt: { typ: "Ja/Nein", pflicht: false, regel: "Rot-Ampel (R7)" },
         sperrgrund: { typ: "Text", pflicht: "bei Sperre", regel: "kurze Begruendung" },
-        produktionsdatum: { typ: "Datum", pflicht: false, regel: "wird von Modul 2 gesetzt" }
+        produktionsdatum: { typ: "Datum", pflicht: false, regel: "wird von Modul 2 gesetzt" },
+        wunschliefertermin: { typ: "Datum", pflicht: false, regel: "Ergaenzung 20.11.2026: optional, leer erlaubt (keine Schaetztermine); rein informativ, keine Auswirkung auf Status/Sortierung; editierbar im Posten-Detail" },
+        prio: { typ: "Ja/Nein", pflicht: false, regel: "Ergaenzung 20.11.2026: Standard Nein; Stern-Chip in Maske 3.1, Toggle in Maske 3.3; Setzen/Entfernen wird in der Historie protokolliert (Rollen-Einschraenkung erst in Phase-1-Folgesitzung)" }
       }
     },
     behaeltertyp: {
@@ -59,7 +61,8 @@ const MODELL = {
   bewegungsarten: [
     "Wareneingang", "Einplanung", "Statuswechsel", "Produktion abgeschlossen",
     "Einlagerung", "Abrufzuordnung", "Warenausgang", "Mengenkorrektur",
-    "Sperren", "Entsperren", "Retoure"
+    "Sperren", "Entsperren", "Retoure",
+    "Prio gesetzt", "Prio entfernt", "Wunsch-Liefertermin geaendert"
   ],
   farbcodeRegelwerk: [
     { farbcode: "A2", name: "John Deere gruen", standardKabine: "Automatik", beschichtungsart: "einfach" },

@@ -44,6 +44,9 @@ const BEISPIEL_ROHPOSTEN = [
   ["P-2026-0020", "ZE01", "ZW-7745-02", "schwarz matt", "T2", 12, 1, "Holzbox", 12, 2, "B-2026-155", "", "Rohteil", false, ""]
 ];
 
+const PRIO_BEISPIELE = { "P-2026-0004": true, "P-2026-0012": true };
+const WUNSCHTERMIN_BEISPIELE = { "P-2026-0002": 7, "P-2026-0009": 14 };
+
 function beispielDaten() {
   const posten = [];
   const bewegungen = [];
@@ -66,9 +69,22 @@ function beispielDaten() {
       status: r[12],
       gesperrt: r[13],
       sperrgrund: r[14],
-      produktionsdatum: null
+      produktionsdatum: null,
+      wunschliefertermin: WUNSCHTERMIN_BEISPIELE[r[0]] ? isoDatum(datumVor(-WUNSCHTERMIN_BEISPIELE[r[0]])) : null,
+      prio: !!PRIO_BEISPIELE[r[0]]
     };
     posten.push(posten_);
+    if (PRIO_BEISPIELE[r[0]]) {
+      bewegungen.push({
+        id: "B-" + String(200 + i).padStart(4, "0"),
+        posten: r[0],
+        bewegungsart: "Prio gesetzt",
+        datumUhrzeit: datumVor(r[9], 9, 5).toISOString(),
+        vorherWert: "Prio: Nein",
+        nachherWert: "Prio: Ja",
+        benutzer: "Buero (Beispiel)"
+      });
+    }
     bewegungen.push({
       id: "B-" + String(i + 1).padStart(4, "0"),
       posten: r[0],
